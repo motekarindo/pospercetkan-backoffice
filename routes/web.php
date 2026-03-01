@@ -73,6 +73,7 @@ Route::middleware('guest')->group(function () {
             Route::get('/{order}/invoice/pdf', [\App\Http\Controllers\Admin\OrderInvoiceController::class, 'pdf'])->name('invoice.pdf');
             Route::get('/{order}/quotation', [\App\Http\Controllers\Admin\OrderInvoiceController::class, 'quotation'])->name('quotation');
             Route::get('/{order}/quotation/pdf', [\App\Http\Controllers\Admin\OrderInvoiceController::class, 'quotationPdf'])->name('quotation.pdf');
+            Route::get('/{order}/receipt', [\App\Http\Controllers\Admin\OrderReceiptController::class, 'show'])->name('receipt');
             Route::get('/trashed', \App\Livewire\Admin\Orders\Trashed::class)->name('trashed');
         });
 
