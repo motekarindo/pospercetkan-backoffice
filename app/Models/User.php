@@ -25,6 +25,8 @@ class User extends Authenticatable
 
     protected ?Collection $cachedMenuIds = null;
 
+    protected ?Collection $cachedAccessRoles = null;
+
 
     /**
      * The attributes that are mass assignable.
@@ -116,8 +118,8 @@ class User extends Authenticatable
             return $this->cachedRoleSlugs;
         }
 
-        $this->cachedRoleSlugs = $this->roles()
-            ->pluck('roles.slug')
+        $this->cachedRoleSlugs = $this->accessRoles()
+            ->pluck('slug')
             ->filter()
             ->map(fn ($slug) => (string) $slug)
             ->values();
@@ -131,9 +133,7 @@ class User extends Authenticatable
             return $this->cachedPermissionSlugs;
         }
 
-        $this->cachedPermissionSlugs = $this->roles()
-            ->with('permissions:id,slug')
-            ->get()
+        $this->cachedPermissionSlugs = $this->accessRoles()
             ->flatMap(fn ($role) => $role->permissions)
             ->pluck('slug')
             ->filter()
@@ -150,9 +150,7 @@ class User extends Authenticatable
             return $this->cachedMenuIds;
         }
 
-        $this->cachedMenuIds = $this->roles()
-            ->with('menus:id')
-            ->get()
+        $this->cachedMenuIds = $this->accessRoles()
             ->flatMap(fn ($role) => $role->menus)
             ->pluck('id')
             ->filter()
@@ -161,5 +159,22 @@ class User extends Authenticatable
             ->values();
 
         return $this->cachedMenuIds;
+    }
+
+    protected function accessRoles(): Collection
+    {
+        if ($this->cachedAccessRoles instanceof Collection) {
+            return $this->cachedAccessRoles;
+        }
+
+        $this->cachedAccessRoles = $this->roles()
+            ->select(['roles.id', 'roles.slug'])
+            ->with([
+                'permissions:id,slug',
+                'menus:id',
+            ])
+            ->get();
+
+        return $this->cachedAccessRoles;
     }
 }
